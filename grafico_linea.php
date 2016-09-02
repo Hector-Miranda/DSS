@@ -1,8 +1,10 @@
-<?php 
+<?php
 session_start();
 
-include ("../jpgraph/jpgraph.php"); 
-include ("../jpgraph/jpgraph_line.php");
+//include ("../jpgraph/jpgraph.php");
+//include ("../jpgraph/jpgraph_line.php");
+//include ("jpgraph-4.0.1/src/jpgraph.php");
+include ("jpgraph-4.0.1/src/jpgraph_line.php");
 require_once ('mysqli_connect.php');
 
 // Some data
@@ -26,33 +28,33 @@ $ydata[] = $row['toneladas'];
 
 //$ydata = array(11.5,3,8,12,5,1,9,13,5,7);
 
-// Create the graph. These two calls are always required 
+// Create the graph. These two calls are always required
 $graph = new Graph(800,600,"auto");
-$graph->SetScale("textlin"); 
-$graph->img->SetAntiAliasing(); 
-$graph->xgrid->Show(); 
+$graph->SetScale("textlin");
+$graph->img->SetAntiAliasing();
+$graph->xgrid->Show();
 
-// Create the linear plot 
+// Create the linear plot
 $lineplot=new LinePlot($ydata);
-$lineplot->SetColor("black"); 
-$lineplot->SetWeight(3); 
-$lineplot->SetLegend("Toneladas"); 
+$lineplot->SetColor("black");
+$lineplot->SetWeight(3);
+$lineplot->SetLegend("Toneladas");
 
-// Setup margin and titles 
+// Setup margin and titles
 //$graph->img->SetMargin(40,20,20,40);  //valores originales
-$graph->img->SetMargin(100,50,100,50); 
+$graph->img->SetMargin(100,50,100,50);
 $graph->title->Set("Comportamiento de produccion");
-$graph->xaxis->title->Set("Año");
-//$graph->yaxis->title->Set("Producción");
+$graph->xaxis->title->Set("A&ntilde;o");
+//$graph->yaxis->title->Set("Producciï¿½n");
 //$graph->ygrid->SetFill(true,'#CCCCCC@0.5','#0000FF@0.3');
 $graph->ygrid->SetFill(true,'#bddef7@0.2','#fafafa@0.1');
 $graph->title->SetFont(FF_ARIAL,FS_BOLD,12);
 //$graph->subtitle->Set('(Updated every 5 minutes)');
 $graph->subtitle->SetFont(FF_ARIAL,FS_ITALIC,10);
-//$graph->SetShadow(); 
-// Add the plot to the graph 
-$graph->Add($lineplot); 
-// Display the graph 
+//$graph->SetShadow();
+// Add the plot to the graph
+$graph->Add($lineplot);
+// Display the graph
 
 
 /////7

@@ -1,12 +1,12 @@
-<?php # asistencia_carnet.php 
+<?php # asistencia_carnet.php
 		# manuelyz@hotmail.com
-		
+
 require_once ('mysqli_connect.php');
 $page_title = ':: Sistema de soporte a las decisiones - Pron&oacute;sticos ::';
 include ('comunes/encabezado.html');
 
 if (isset($_POST['submitted'])) { // Handle the form.
-	
+
 	// Validate the incoming data...
 	$errors = array();
 
@@ -15,20 +15,20 @@ if (isset($_POST['submitted'])) { // Handle the form.
 	} else { // No artist selected.
 		$errors[] = 'No se ha seleccionado el producto.';
 	}
-	
+
 	if ( isset($_POST['estado']) && ($_POST['estado'] == 'estado_existente') && ($_POST['estado_existente'] > 0) ) { // Existing artist.
 		$es = (int) $_POST['estado_existente'];
 	} else { // No artist selected.
 		$errors[] = 'No se ha seleccionado el estado.';
 	}
-	
-	
-			
-		
+
+
+
+
 	if (empty($errors)) { // If everything's OK.
 
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//*************************************************************************************************************************************
+		////////////////////////////////////////////////////////////////////////////
+		//**************************************************************************
 		echo '<h1>Pron&oacute;stico de ';
 		//Obtiene el nombre dinámicamente de acuerdo al índice enviado en la lista desplegable
 		$q = "SELECT nombre_producto FROM productos where clave_producto= $pr";
@@ -40,12 +40,12 @@ if (isset($_POST['submitted'])) { // Handle the form.
 		$k = @mysqli_query ($dbc, $j);
 		$fila = mysqli_fetch_array($k, MYSQLI_ASSOC);
 		echo ' para ', $fila['nombre_estado'],'</h1>';
-		
+
 		require_once ('mysqli_connect.php');
-		
+
 		// Number of records to show per page:
 		$display = 32; // corresponde a los 32 estados de la República Mexicana, y no queremos que muestra páginas.
-		
+
 		// Determine how many pages there are...
 		if (isset($_GET['p']) && is_numeric($_GET['p'])) { // Already been determined.
 			$pages = $_GET['p'];
@@ -62,18 +62,18 @@ if (isset($_POST['submitted'])) { // Handle the form.
 				$pages = 1;
 			}
 		} // End of p IF.
-		
+
 		// Determine where in the database to start returning results...
 		if (isset($_GET['s']) && is_numeric($_GET['s'])) {
 			$start = $_GET['s'];
 		} else {
 			$start = 0;
 		}
-		
-		
+
+
 		// Determine the sort...
 		$sort = (isset($_GET['sort'])) ? $_GET['sort'] : 'z';
-		
+
 		// Determine the sorting order:
 		// Problemas para determinar el sort, se removió =/
 		switch ($sort) {
@@ -94,7 +94,7 @@ if (isset($_POST['submitted'])) { // Handle the form.
 				$sort = 'z';
 				break;
 		}
-		
+
 		// Make the query:
 		$q = "SELECT *
 			FROM productos, produccion, estados
@@ -102,10 +102,8 @@ if (isset($_POST['submitted'])) { // Handle the form.
 			clave_estado=$es AND clave_producto = $pr
 			order by anio";
 		$r = @mysqli_query ($dbc, $q); // Run the query.
-		
 
-		
-		echo $alfa_t, $alfa_prima_t;
+		//echo $alfa_t, $alfa_prima_t;
 		// Table header:
 		echo '<table align="center" cellspacing="5" cellpadding="5" width="100%">
 		<tr>
@@ -120,22 +118,23 @@ if (isset($_POST['submitted'])) { // Handle the form.
 		';
 
 		// Fetch and print all the records....
-		$bg = '#eeeeee'; 
-		$zvar = 1;		
+		$bg = '#eeeeee';
+		$zvar = 1;
 		$alfa_t = 0;
 		$alfa_prima_t= 0;
 		$alfa = 0;
 		$beta = 0;
 		$suavizacion = 0;
+		$fecha = 0;
 		while ($row = mysqli_fetch_array($r, MYSQLI_ASSOC)) {
 
 		if ($zvar == 1) { //triquiñuela para tomar los valores iniciales
 			$a_t = 		$row['toneladas'];
-			$aprima_t =	$row['toneladas'];	
+			$aprima_t =	$row['toneladas'];
 			$zvar=0;
 		}
 
-		
+
 		$suavizacion = $alfa + $beta;
 		//$var1 = $a_t;
 		$a_t = (0.8 * $row['toneladas']) + ((1-0.8) * $a_t);
@@ -150,14 +149,14 @@ if (isset($_POST['submitted'])) { // Handle the form.
 				<td align="right">' . number_format($row['toneladas'],2, '.', ' ') . '</td>
 				<td align="right">' . number_format($a_t,2, '.', ' ') . '</td>
 				<td align="right">' . number_format($aprima_t,2, '.', ' ') . '</td>
-				<td align="right">' . number_format($alfa,2, '.', ' ') . '</td>				
+				<td align="right">' . number_format($alfa,2, '.', ' ') . '</td>
 				<td align="right">' . number_format($beta,2, '.', ' ') . '</td>
 				<td align="right">' . number_format($suavizacion,2, '.', ' ') . '</td>
 			</tr>
-			';			
-				$suavizacion = $alfa + $beta;	
+			';
+				$suavizacion = $alfa + $beta;
 				$fecha =  $row['anio'] + 1;
-			
+
 		} // End of WHILE loop.
 
 			$bg = ($bg=='#eeeeee' ? '#ffffff' : '#eeeeee');
@@ -166,23 +165,23 @@ if (isset($_POST['submitted'])) { // Handle the form.
 				<td align="right"> </td>
 				<td align="right"> </td>
 				<td align="right"> </td>
-				<td align="right"> </td>				
+				<td align="right"> </td>
 				<td align="right"><b>Estimado</b></td>
 				<td align="right"><b>' . number_format($suavizacion,2, '.', ' ') . '</b></td>
 			</tr>
-			';		
+			';
 		echo '</table>';
 		mysqli_free_result ($r);
 		//mysqli_close($dbc); <--!!!!! Mantener cerrado si se van a dejar los filtros abajo
-		
+
 		// Make the links to other pages, if necessary.
-		if ($pages > 1) {	
+		if ($pages > 1) {
 			echo '<br /><p class="style10">';
-			$current_page = ($start/$display) + 1;	
+			$current_page = ($start/$display) + 1;
 			// If it's not the first page, make a Previous button:
 			if ($current_page != 1) {
 				echo '<a href="4.php?s=' . ($start - $display) . '&p=' . $pages . '&sort=' . $sort . '">Anterior</a> ';
-			}	
+			}
 			// Make all the numbered pages:
 			for ($i = 1; $i <= $pages; $i++) {
 				if ($i != $current_page) {
@@ -190,14 +189,14 @@ if (isset($_POST['submitted'])) { // Handle the form.
 				} else {
 					echo $i . ' ';
 				}
-			} // End of FOR loop.	
+			} // End of FOR loop.
 			// If it's not the last page, make a Next button:
 			if ($current_page != $pages) {
 				echo '<a href="4.php?s=' . ($start + $display) . '&p=' . $pages . '&sort=' . $sort . '">Siguiente</a>';
-			}	
-			echo '</p>'; // Close the paragraph.	
+			}
+			echo '</p>'; // Close the paragraph.
 		} // End of links section.	//*************************************************************************************************************************************		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		
+
 		// Check the results...
 		if (empty($errors)) {
 			// Print a message:
@@ -209,11 +208,11 @@ if (isset($_POST['submitted'])) { // Handle the form.
 		} else { // Error!
 			echo '<p class="error">Ha ocurrido un error en el sistema.<br />';
 			echo '</p><p>Intentelo de nuevo.</p><p><br /></p>';
-		}		
-		
-		//mysqli_stmt_close($stmt);		
+		}
+
+		//mysqli_stmt_close($stmt);
 	} // End of $errors IF.
-	
+
 } // End of the submission IF.
 
 // Check for any errors and print them:
@@ -223,7 +222,7 @@ if ( !empty($errors) && is_array($errors) ) {
 	foreach ($errors as $msg) {
 		echo " - $msg<br />\n";
 	}
-	echo '</p><p>Por favor, intente de nuevo.</p><p><br /></p>';			
+	echo '</p><p>Por favor, intente de nuevo.</p><p><br /></p>';
 	//echo 'Please reselect the print image and try again.</p>';
 }
 
@@ -241,13 +240,13 @@ if ( !empty($errors) && is_array($errors) ) {
         <td><p><input type="hidden" name="producto" value="producto_existente" <?php if (isset($_POST['producto']) && ($_POST['producto'] == 'producto_existente') ) echo ' checked="checked"'; ?>/>
             <select name="producto_existente"><option>Seleccione el producto...</option>
             <?php // Retrieve all the artists and add to the pull-down menu.
-                $q = "SELECT * FROM productos ORDER BY nombre_producto ASC";		
+                $q = "SELECT * FROM productos ORDER BY nombre_producto ASC";
                 $r = mysqli_query ($dbc, $q);
                 if (mysqli_num_rows($r) > 0) {
                     while ($row = mysqli_fetch_array ($r, MYSQLI_NUM)) {
                         echo "<option value=\"$row[0]\"";
 						// Check for stickyness:
-						if (isset($_POST['producto_existente']) && ($_POST['producto_existente'] == $row[0]) ) 
+						if (isset($_POST['producto_existente']) && ($_POST['producto_existente'] == $row[0]) )
 							echo ' selected="selected"';
 							echo ">$row[1]</option>\n";
 					}
@@ -258,14 +257,14 @@ if ( !empty($errors) && is_array($errors) ) {
 			?>
 			</select></p></td>
 		<tr>
-        
-      
+
+
         		<tr>
         <td><p>Estado:</p></td>
         <td><p><input type="hidden" name="estado" value="estado_existente" <?php if (isset($_POST['estado']) && ($_POST['estado'] == 'estado_existente') ) echo ' checked="checked"'; ?>/>
             <select name="estado_existente"><option>Seleccione el estado...</option>
             <?php // Retrieve all the artists and add to the pull-down menu.
-                $q = "SELECT * FROM estados 
+                $q = "SELECT * FROM estados
 					GROUP BY nombre_estado
 					ORDER BY nombre_estado ASC";
                 $r = mysqli_query ($dbc, $q);
@@ -273,7 +272,7 @@ if ( !empty($errors) && is_array($errors) ) {
                     while ($row = mysqli_fetch_array ($r, MYSQLI_NUM)) {
                         echo "<option value=\"$row[0]\"";
 						// Check for stickyness:
-						if (isset($_POST['estado_existente']) && ($_POST['estado_existente'] == $row[0]) ) 
+						if (isset($_POST['estado_existente']) && ($_POST['estado_existente'] == $row[0]) )
 							echo ' selected="selected"';
 							echo ">$row[1]</option>\n";
 					}
@@ -283,9 +282,9 @@ if ( !empty($errors) && is_array($errors) ) {
 				mysqli_close($dbc); // Close the database connection. //Por seguridad =)
 			?>
 			</select></p></td>
-		<tr>   
-        
-        		<tr>        			
+		<tr>
+
+        		<tr>
 		<!--</fieldset>-->
 		<td><p><input type="submit" name="submit" value="Pronosticar" />
 			<input type="hidden" name="submitted" value="TRUE" /></p></td>
